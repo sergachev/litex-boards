@@ -67,14 +67,14 @@ class BaseSoC(SoCCore):
     def __init__(self, sys_clk_freq=int(27e6), with_hyperram=False, with_led_chaser=True, with_video_terminal=True, **kwargs):
         platform = tang_nano_4k.Platform()
 
+        # no need for a SoC-generated ROM - using either CPU-attached FLASH256K or external SPI chip
+        kwargs["integrated_rom_size"] = 0
         if 'cpu_type' in kwargs and kwargs['cpu_type'] == 'gowin_emcu':
             kwargs['with_uart'] = False  # CPU has own UART
             kwargs['integrated_sram_size'] = 0  # SRAM is directly attached to CPU
-            kwargs["integrated_rom_size"] = 0  # boot flash directly attached to CPU
         else:
             # Put BIOS in SPIFlash to save BlockRAMs.
             self.mem_map = {**SoCCore.mem_map, **{"spiflash": 0x80000000}}
-            kwargs["integrated_rom_size"] = 0
             kwargs["cpu_reset_address"]   = self.mem_map["spiflash"] + 0
 
         # SoCCore ----------------------------------------------------------------------------------
@@ -95,9 +95,18 @@ class BaseSoC(SoCCore):
         self.add_spi_flash(mode="1x", module=W25Q32(Codes.READ_1_1_1), with_master=False)
 
         if self.cpu_type == 'gowin_emcu':
+            self.bus.add_region("sram", SoCRegion(
+                origin = self.mem_map["sram"],
+                size   = 16*kB)
+            )
+            self.bus.add_region("rom", SoCRegion(
+                origin = self.mem_map["rom"],
+                size   = 32*kB,
+                linker = True)
+            )
             self.cpu.connect_uart(platform.request('serial'))
         else:
-        # Add ROM linker region --------------------------------------------------------------------
+            # Add ROM linker region --------------------------------------------------------------------
             self.bus.add_region("rom", SoCRegion(
                 origin = self.mem_map["spiflash"] + 0,
                 size   = 64*kB,
@@ -143,10 +152,6 @@ def main():
     builder_args(parser)
     soc_core_args(parser)
     args = parser.parse_args()
-
-    if args.cpu_type == 'gowin_emcu':
-        # FIXME: ARM software not supported yet
-        args.no_compile_software = True
 
     soc = BaseSoC(
         sys_clk_freq=int(float(args.sys_clk_freq)),
