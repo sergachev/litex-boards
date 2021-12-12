@@ -57,7 +57,7 @@ class BaseSoC(SoCCore):
 
         # SoCCore ----------------------------------------------------------------------------------
         SoCCore.__init__(self, platform, sys_clk_freq,
-            ident          = "LiteX SoC on Zebboard",
+            ident          = "LiteX SoC on Red Pitaya",
             ident_version  = True,
             **kwargs)
 
@@ -92,7 +92,7 @@ class BaseSoC(SoCCore):
 
 
 def main():
-    parser = argparse.ArgumentParser(description="LiteX SoC on Zedboard")
+    parser = argparse.ArgumentParser(description="LiteX SoC on Red Pitaya")
     parser.add_argument("--build",        action="store_true", help="Build bitstream")
     parser.add_argument("--load",         action="store_true", help="Load bitstream")
     parser.add_argument("--sys-clk-freq", default=100e6,       help="System clock frequency (default: 100MHz)")
