@@ -118,7 +118,6 @@ def main():
         **soc_core_argdict(args)
     )
     builder = Builder(soc, **builder_argdict(args))
-    print(builder.compile_software)
     builder.build(**vivado_build_argdict(args), run=args.build)
 
     if args.load:
