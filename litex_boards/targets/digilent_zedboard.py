@@ -65,7 +65,9 @@ class BaseSoC(SoCCore):
 
         # Zynq7000 Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynq7000":
-            self.cpu.set_ps7(preset="ZedBoard", config={'PCW_FPGA0_PERIPHERAL_FREQMHZ': sys_clk_freq / 1e6})
+            self.cpu.set_ps7(name="Zynq",
+                             preset="ZedBoard",
+                             config={'PCW_FPGA0_PERIPHERAL_FREQMHZ': sys_clk_freq / 1e6})
 
             # Connect AXI GP0 to the SoC
             wb_gp0 = wishbone.Interface()
