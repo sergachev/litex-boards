@@ -21,7 +21,6 @@ from litex.soc.cores.clock import *
 from litex.soc.integration.soc_core import *
 from litex.soc.integration.soc import SoCRegion
 from litex.soc.integration.builder import *
-from litex.soc.cores.led import LedChaser
 
 # CRG ----------------------------------------------------------------------------------------------
 
@@ -48,7 +47,7 @@ class _CRG(Module):
 
 
 class BaseSoC(SoCCore):
-    # mem_map = {"csr": 0x43c0_0000}  # default GP0 address on Zynq
+    mem_map = {"csr": 0xA000_0000}  # default GP0 address on ZynqMP
 
     def __init__(self, sys_clk_freq, **kwargs):
         platform = xilinx_kv260.Platform()
@@ -63,27 +62,22 @@ class BaseSoC(SoCCore):
 
         # ZynqMP Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
-        #     self.cpu.set_ps7(name="Zynq",
-        #                      preset="ZedBoard",
-        #                      config={'PCW_FPGA0_PERIPHERAL_FREQMHZ': sys_clk_freq / 1e6})
-        #
-        #     # Connect AXI GP0 to the SoC
-        #     wb_gp0 = wishbone.Interface()
-        #     self.submodules += axi.AXI2Wishbone(
-        #         axi          = self.cpu.add_axi_gp_master(),
-        #         wishbone     = wb_gp0,
-        #         base_address = self.mem_map["csr"])
-        #     self.add_wb_master(wb_gp0)
-        #
-        #     self.bus.add_region("sram", SoCRegion(
-        #         origin=self.cpu.mem_map["sram"],
-        #         size=512 * 1024 * 1024 - self.cpu.mem_map["sram"])
-        #     )
-        #     self.bus.add_region("rom", SoCRegion(
-        #         origin=self.cpu.mem_map["rom"],
-        #         size=256 * 1024 * 1024 // 8,
-        #         linker=True)
-        #     )
+            # Connect Zynq AXI master to the SoC
+            wb_gp0 = wishbone.Interface()
+            self.submodules += axi.AXI2Wishbone(
+                axi          = self.cpu.add_axi_gp_master(),
+                wishbone     = wb_gp0,
+                base_address = self.mem_map["csr"])
+            self.add_wb_master(wb_gp0)
+            self.bus.add_region("sram", SoCRegion(
+                origin=self.cpu.mem_map["sram"],
+                size=2 * 1024 * 1024 * 1024)  # DDR
+            )
+            self.bus.add_region("rom", SoCRegion(
+                origin=self.cpu.mem_map["rom"],
+                size=512 * 1024 * 1024 // 8,
+                linker=True)
+            )
         #     self.constants['CONFIG_CLOCK_FREQUENCY'] = 666666687
         #
             use_ps7_clk = True
