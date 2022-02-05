@@ -62,6 +62,14 @@ class BaseSoC(SoCCore):
 
         # ZynqMP Integration ---------------------------------------------------------------------
         if kwargs.get("cpu_type", None) == "zynqmp":
+            self.cpu.config.update({
+                'PSU__UART1__PERIPHERAL__ENABLE': 1,
+                'PSU__UART1__PERIPHERAL__IO': 'MIO 36 .. 37',
+                'PSU_MIO_36_DIRECTION': 'out',
+                'PSU_MIO_37_DIRECTION': 'in',
+                'PSU__UART1__BAUD_RATE': 115200,
+                'PSU__CRL_APB__UART1_REF_CTRL__DIVISOR0': 10,
+            })
             # Connect Zynq AXI master to the SoC
             wb_gp0 = wishbone.Interface()
             self.submodules += axi.AXI2Wishbone(
