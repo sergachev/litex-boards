@@ -8,7 +8,9 @@ from litex.build.generic_platform import *
 from litex.build.xilinx import XilinxPlatform, VivadoProgrammer
 
 
-_io = []
+_io = [
+    ("fan", 0, Pins("A12"), IOStandard("LVCMOS33")),
+]
 
 
 class Platform(XilinxPlatform):
