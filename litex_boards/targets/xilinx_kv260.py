@@ -406,8 +406,8 @@ class BaseSoC(SoCCore):
                 size=512 * 1024 * 1024 // 8,
                 linker=True)
             )
-        #     self.constants['CONFIG_CLOCK_FREQUENCY'] = 666666687
-        #
+            self.constants['CONFIG_CLOCK_FREQUENCY'] = 1333333008
+
             use_ps7_clk = True
         else:
             use_ps7_clk = False
